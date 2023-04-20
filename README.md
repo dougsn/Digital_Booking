@@ -49,8 +49,8 @@ Dentro do nosso ambiente de produção, utilizamos o autoscalling para favorecer
 ### Sobre o banco de dados
 - Foi utilizado o banco de dados RDS da amazon para guardar e manipularmos os dados da nossa aplicação, diagrama UML: https://lucid.app/lucidchart/cf67ee59-b7bb-47f5-b621-c768c1b491ca/edit?invitationId=inv_0d19fc7e-66a0-44f4-8c19-acccc7b42da7&page=0_0#
 
-### Sobre o banco de dados
-- Infraestrutura montada na AWS com autoscalling para o Front-end e Back-end, Diagrama da infra(https://drive.google.com/file/d/1B_WyHqHFF8G8w5AlQ68RupmlrfSjkWzG/view)
+### Sobre o front-end
+- Foi utilizado o ReactJS com Tailwind, StoryBook: https://doc.frontend.g7.projetos.app.br/?path=/story/components-confirmationcards-confirmcreateproperty--default
 
 ### Sobre o banco de dados
 - Testes manuais e automatizados com CYPRESS e Postman, foram integrados em nossa CI do GitLab: https://gitlab.ctd.academy/ctd/brasil/projeto-integrador-1/0223/turma-6/grupo-7/-/tree/main
