@@ -1,0 +1,457 @@
+{
+	"info": {
+		"_postman_id": "db89a432-16a2-4ec5-9233-dd22a54120da",
+		"name": "PI-Testes-Produtos",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "5473166"
+	},
+	"item": [
+		{
+			"name": "autenticarPorLogin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"TOKEN\", pm.response.json().token);\r",
+							"\r",
+							"//pm.environment.set(\"IDUser\", pm.response.json().user.id);\r",
+							"\r",
+							"pm.test(\"Código de retorno é 200\",  () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('buscarProdutos');\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"maria@teste.com\",\r\n  \"password\": \"123456\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Auth_URL}}",
+					"host": [
+						"{{Auth_URL}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "buscarProdutos",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código de retorno é 200\",  () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Verificar dentro do produto uma categoria com o valor de HOTEL\", () => {\r",
+							"    pm.expect(pm.response.text()).to.deep.include(\"Hotel\");\r",
+							"\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Verificar se tem um array de características no produto\", () =>{\r",
+							"    const jsonData = pm.response.json();\r",
+							"    //console.log(jsonData[0].caracteristicas);\r",
+							"    const característicasData = jsonData[6].caracteristicas;\r",
+							"    pm.expect(característicasData).to.be.an(\"array\");\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('buscarImagem');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{Base_URL}}/produto",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"produto"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "buscarImagem",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código de retorno é 200\",  () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.environment.set(\"IDImagem\", pm.response.json()[0].id);\r",
+							"\r",
+							"postman.setNextRequest('buscarTodasCategorias');\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{Base_URL}}/imagem",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"imagem"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "buscarTodasCategorias",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código de retorno é 200\",  () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Verifica se existe alguma categoria Hotel\", () => {\r",
+							"    pm.expect(pm.response.text()).to.include(\"Hotel\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Content-Type is present\", () => {\r",
+							"    pm.response.to.have.header(\"Content-Type\");\r",
+							"});\r",
+							"\r",
+							"pm.environment.set(\"IDCategoria\", pm.response.json()[0].id)\r",
+							"\r",
+							"postman.setNextRequest('adicionarProduto');\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{Base_URL}}/categoria",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"categoria"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "adicionarProduto",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código de retorno é 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"pm.environment.set(\"IDProduto\", pm.response.json().id)\r",
+							"\r",
+							"pm.test(\"Tempo de resposta é até 1000ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('buscarProdutoPorId');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"nome\": \"Meliá Brasil 23\",\r\n  \"descricao\": \"O Meliá Brasil 23 fica a 1 km do shopping center Conjunto Nacional e a 1,2 km do Estádio Mané Garrincha. Já o Aeroporto Internacional de Brasília está situado a 13 km da propriedade.\",\r\n  \"regras_da_casa\": \"Check in após às 12 horas\", \r\n  \"saude_e_seguranca\": \"Comprovante de COVID-19 obrigatório\",\r\n  \"politica_de_cancelamento\": \"Você não vai querer cancelar esse paraiso\",\r\n  \"endereco\": \"SHN 01 Asa Norte\",\r\n  \"imagem_default\": \"https://images.unsplash.com/photo-1517840901100-8179e982acb7?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80\",\r\n  \"imagens\": [\r\n    {\r\n      \"id\": {{IDImagem}}\r\n    }\r\n  ],\r\n  \"categoria\": {\r\n    \"id\": {{IDCategoria}}\r\n  },\r\n  \"cidade\": {\r\n    \"id\": 5\r\n  },\r\n  \"caracteristicas\": [\r\n    {\r\n      \"id\": 5\r\n    },\r\n    {\r\n        \"id\": 2\r\n    }\r\n  ],\r\n  \"mediaClassificacao\": 0\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Base_URL}}/produto/adicionar",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"produto",
+						"adicionar"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "buscarProdutoPorId",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código de retorno é 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Valida se o id retornado é igual a variável global\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.id).to.eql(pm.environment.get('IDProduto'));\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('atualizarProduto');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{Base_URL}}/produto/{{IDProduto}}",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"produto",
+						"{{IDProduto}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "atualizarProduto",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Sucesso ao atualizar\", function () {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 202]);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Valida se o produto foi ataulizado!\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    if(jsonData.id == parseInt(pm.environment.get('IDProduto'))){\r",
+							"        console.log(\"Produto atualizado!\")\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('deletarProduto');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"nome\": \"Meliá Brasil 23\",\r\n    \"descricao\": \"O Meliá Brasil 23 fica a 1 km do shopping center Conjunto Nacional e a 1,2 km do Estádio Mané Garrincha. Já o Aeroporto Internacional de Brasília está situado a 13 km da propriedade.\",\r\n    \"regras_da_casa\": \"Check in após às 12 horas\",\r\n    \"saude_e_seguranca\": \"Comprovante de COVID-19 obrigatório\",\r\n    \"politica_de_cancelamento\": \"Você não vai querer cancelar esse paraiso\",\r\n    \"endereco\": \"SHN 01 Asa Norte\",\r\n    \"imagem_default\": \"https://images.unsplash.com/photo-1517840901100-8179e982acb7?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80\",\r\n    \"imagens\": [\r\n        {\r\n            \"id\": {{IDImagem}}\r\n        }\r\n    ],\r\n    \"categoria\": {\r\n        \"id\": {{IDCategoria}}\r\n    },\r\n    \"cidade\": {\r\n        \"id\": 6\r\n    },\r\n    \"caracteristicas\": [\r\n        {\r\n            \"id\": 1\r\n        },\r\n        {\r\n            \"id\": 4\r\n        }\r\n    ],\r\n    \"mediaClassificacao\": 6\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Base_URL}}/produto/atualizar/{{IDProduto}}",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"produto",
+						"atualizar",
+						"{{IDProduto}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deletarProduto",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Produto foi encontradas\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"Produto apagada!\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Código de retorno é 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest(null);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{Base_URL}}/produto/delete/{{IDProduto}}",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"produto",
+						"delete",
+						"{{IDProduto}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "buscarProdutoPorCidade",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Retorno da Cidade\", () => {\r",
+							"    console.log(pm.response.json());\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "nomeCidade",
+							"value": "Brasília",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{Base_URL}}/produto/cidade",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"produto",
+						"cidade"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "buscarProdutoPorCategoria",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Retorno da Categoria\", () => {\r",
+							"    console.log(pm.response.json());\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "descricao",
+							"value": "HOTEL",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{Base_URL}}/produto/categoria",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"produto",
+						"categoria"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

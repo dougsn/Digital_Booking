@@ -1,0 +1,277 @@
+{
+	"info": {
+		"_postman_id": "149a713f-4bac-42cd-83df-236de9a15e69",
+		"name": "PI-Testes-Imagens",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "5473166"
+	},
+	"item": [
+		{
+			"name": "autenticarPorLogin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"TOKEN\", pm.response.json().token);\r",
+							"\r",
+							"//pm.environment.set(\"IDUser\", pm.response.json().user.id);\r",
+							"\r",
+							"pm.test(\"Código de retorno é 200\",  () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('buscarImagem');\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"maria@teste.com\",\r\n  \"password\": \"123456\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Auth_URL}}",
+					"host": [
+						"{{Auth_URL}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "buscarImagem",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código de retorno é 200\",  () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('adicionarImagem');\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{Base_URL}}/imagem",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"imagem"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "adicionarImagem",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código de retorno é 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"pm.environment.set(\"IDImagem\", pm.response.json().id);\r",
+							"\r",
+							"pm.test(\"Tempo de resposta é até 1000ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('buscarImagemPorId');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"id\": 6,\r\n  \"titulo\": \"Quarto de luxo\",\r\n  \"url\": \"https://images.unsplash.com/photo-1591088398332-8a7791972843?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1374&q=80\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Base_URL}}/imagem",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"imagem"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "buscarImagemPorId",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código de retorno é 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Valida se o id retornado é igual a variavel global\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.id).to.eql(pm.environment.get('IDImagem'));\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('atualizarImagem');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{Base_URL}}/imagem/{{IDImagem}}",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"imagem",
+						"{{IDImagem}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "atualizarImagem",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Sucesso ao atualizar\", function () {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 202]);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Valida se a imagem foi ataulizada!\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    if(jsonData.id == parseInt(pm.environment.get('IDImagem'))){\r",
+							"        console.log(\"Imagem atualizada!\")\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('deletarImagem');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"titulo\": \"Quarto de luxo\",\r\n  \"url\": \"https://images.unsplash.com/photo-1562438668-bcf0ca6578f0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1460&q=80\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Base_URL}}/imagem/atualizar/{{IDImagem}}",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"imagem",
+						"atualizar",
+						"{{IDImagem}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deletarImagem",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código de retorno é 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Imagem foi encontrada\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"Imagem apagada!\");\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest(null);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{Base_URL}}/imagem/delete/{{IDImagem}}",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"imagem",
+						"delete",
+						"{{IDImagem}}"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

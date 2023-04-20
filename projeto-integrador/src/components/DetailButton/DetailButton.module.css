@@ -1,0 +1,30 @@
+.btn{
+    width: fit-content;
+    display: inline-block;
+    color: #29807a;
+    transition: 0.3s ease all;
+    padding: 10px;
+}
+
+.btn svg{
+    display:initial
+}
+
+.btn::after{
+    content: "";
+    display: block;
+    height: 1px;
+    width: 30px;
+    margin: 0 auto;
+    background-color: #29807a;
+    transition: 0.3s ease all;
+}
+
+.btn:hover{
+    color: #1DBEB4;
+}
+
+.btn:hover::after{
+    background-color: #1DBEB4;
+    width: 100%;
+}

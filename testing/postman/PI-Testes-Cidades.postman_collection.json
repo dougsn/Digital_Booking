@@ -1,0 +1,288 @@
+{
+	"info": {
+		"_postman_id": "4a78f575-7a9a-4022-b0c6-467f5936d5da",
+		"name": "PI-Testes-Cidades",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "5473166"
+	},
+	"item": [
+		{
+			"name": "autenticarPorLogin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"TOKEN\", pm.response.json().token);\r",
+							"\r",
+							"//pm.environment.set(\"IDUser\", pm.response.json().user.id);\r",
+							"\r",
+							"pm.test(\"Código de retorno é 200\",  () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('buscarCidades');\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"maria@teste.com\",\r\n  \"password\": \"123456\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Auth_URL}}",
+					"host": [
+						"{{Auth_URL}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "buscarCidades",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código de retorno é 200\",  () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Verifica se existe alguma cidade São Paulo\", () => {\r",
+							"    pm.expect(pm.response.text()).to.include(\"São Paulo\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Host is present\", () => {\r",
+							"    pm.request.to.have.header(\"Host\");\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('adicionarCidades');\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{Base_URL}}/cidade",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"cidade"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "adicionarCidades",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código de retorno é 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"pm.environment.set(\"IDCidade\", pm.response.json().id);\r",
+							"\r",
+							"pm.test(\"Tempo de resposta é até 1000ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('buscarCidadesPorId');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"nome\": \"Itabira\",\r\n  \"pais\": \"Brasil\",\r\n  \"estado\": \"Minas Gerais\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Base_URL}}/cidade",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"cidade"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "buscarCidadesPorId",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código de retorno é 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Valida se o id retornado é igual a variável de ambiente\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    var idCidade = pm.environment.get('IDCidade');\r",
+							"    pm.expect(jsonData.id).to.eql(idCidade);\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('atualizarCidade');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{Base_URL}}/cidade/{{IDCidade}}",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"cidade",
+						"{{IDCidade}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "atualizarCidade",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Sucesso ao atualizar\", function () {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 202]);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Valida se a respota está correta!\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"\r",
+							"    if (jsonData.id == parseInt(pm.environment.get('IDCidade'))){\r",
+							"        console.log(\"Cidade Atualizada!\")\r",
+							"    }\r",
+							"    //pm.response.to.have.body(\"Cidade atualizada!\");\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('deleteCidade');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"nome\": \"Ipoema\",\r\n  \"pais\": \"Brasil\",\r\n  \"estado\": \"Minas Gerais\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Base_URL}}/cidade/atualizar/{{IDCidade}}",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"cidade",
+						"atualizar",
+						"{{IDCidade}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deleteCidade",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código de retorno é 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Cidade foi encontrada!\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"Cidade apagada!\");\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest(null);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{Base_URL}}/cidade/delete/{{IDCidade}}",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"cidade",
+						"delete",
+						"{{IDCidade}}"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

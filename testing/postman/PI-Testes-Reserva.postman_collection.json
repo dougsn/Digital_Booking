@@ -1,0 +1,443 @@
+{
+	"info": {
+		"_postman_id": "fee1e702-0e49-47c9-8d1f-71dcbe6d1eb4",
+		"name": "PI-Testes-Reserva",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "5473166"
+	},
+	"item": [
+		{
+			"name": "autenticarPorLogin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Calculo das datas para reserva\", () => {\r",
+							"    var moment = require('moment');\r",
+							"    var dataInicial = moment().add(8, 'days').format('DD/MM/YYYY');\r",
+							"    var dataFinal = moment().add(12, 'days').format('DD/MM/YYYY');\r",
+							"    console.log(dataInicial);\r",
+							"    console.log(dataFinal);\r",
+							"    pm.environment.set('dataInicial', dataInicial);\r",
+							"    pm.environment.set('dataFinal', dataFinal);\r",
+							"})\r",
+							"\r",
+							"pm.environment.set(\"TOKEN\", pm.response.json().token);\r",
+							"\r",
+							"pm.test(\"Código de retorno é 200\",  () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('buscarProdutos');\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"maria@teste.com\",\r\n  \"password\": \"123456\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Auth_URL}}",
+					"host": [
+						"{{Auth_URL}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "buscarProdutos",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código de retorno é 200\",  () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Buscar um produto para a reserva\", () =>{\r",
+							"    const jsonData = pm.response.json();\r",
+							"    const produto = jsonData[0].id;\r",
+							"    console.log(produto)\r",
+							"    pm.environment.set('IDProduto', produto)\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('buscarReserva');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{Base_URL}}/produto",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"produto"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "buscarReserva",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código de retorno é 200\",  () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Authorization is present\", () => {\r",
+							"    pm.request.to.have.header(\"Authorization\");\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('adicionarReserva');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "{{Base_URL}}/reserva",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"reserva"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "adicionarReserva",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"\r",
+							"pm.test(\"Código de retorno é 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"pm.environment.set(\"IDReserva\", pm.response.json().id)\r",
+							"\r",
+							"pm.test(\"Tempo de resposta é até 8000ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(8000);\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('buscarReservaPorId');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"hora_inicio\": \"13:30\",  \r\n  \"data_inicio_reserva\": \"{{dataInicial}}\",\r\n  \"data_fim_reserva\": \"{{dataFinal}}\",\r\n  \"produto\": {\r\n    \"id\": {{IDProduto}}\r\n  }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Base_URL}}/reserva",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"reserva"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "buscarReservaPorId",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código de retorno é 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Valida se o id retornado é igual a variável global\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    console.log(jsonData.produto.cidade.nome)\r",
+							"    pm.expect(jsonData.id).to.eql(pm.environment.get('IDReserva'));\r",
+							"    pm.environment.set('nomeCidade', jsonData.produto.cidade.nome);\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('atualizarReserva');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{Base_URL}}/reserva/{{IDReserva}}",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"reserva",
+						"{{IDReserva}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "atualizarReserva",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Sucesso ao atualizar\", function () {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 202]);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Valida se a respota está correta!\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    if(jsonData.id == pm.environment.get('IDReserva')){\r",
+							"        console.log(\"Reserva atualizado!\");\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('deletarReserva');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"data_inicio_reserva\": \"23/04/2023\",\r\n  \"data_fim_reserva\": \"27/04/2023\",\r\n  \"produto\": {\r\n    \"id\": 33\r\n  }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Base_URL}}/reserva/atualizar/{{IDReserva}}",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"reserva",
+						"atualizar",
+						"{{IDReserva}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deletarReserva",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Reserva foi encontrada\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"Reserva apagada!\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Código de retorno é 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{Base_URL}}/reserva/delete/{{IDReserva}}",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"reserva",
+						"delete",
+						"{{IDReserva}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "buscarReservaUser",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código de retorno é 200\",  () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Authorization is present\", () => {\r",
+							"    pm.request.to.have.header(\"Authorization\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{Base_URL}}/reserva/reservaUser",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"reserva",
+						"reservaUser"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "buscarReservaPorData",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{Base_URL}}/reserva/consultaReservaData?dataInicio=01/01/2023&dataFim=31/12/2023",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"reserva",
+						"consultaReservaData"
+					],
+					"query": [
+						{
+							"key": "dataInicio",
+							"value": "01/01/2023"
+						},
+						{
+							"key": "dataFim",
+							"value": "31/12/2023"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "buscarReservaPorDataCidade",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{Base_URL}}/reserva/consultaReservaDataCidade?cidade={{nomeCidade}}&dataInicio=01/01/2023&dataFim=31/12/2023",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"reserva",
+						"consultaReservaDataCidade"
+					],
+					"query": [
+						{
+							"key": "cidade",
+							"value": "{{nomeCidade}}"
+						},
+						{
+							"key": "dataInicio",
+							"value": "01/01/2023"
+						},
+						{
+							"key": "dataFim",
+							"value": "31/12/2023"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

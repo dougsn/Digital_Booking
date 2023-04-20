@@ -1,0 +1,342 @@
+{
+	"info": {
+		"_postman_id": "07c86297-7426-481b-b7a7-487b5d83edb3",
+		"name": "PI-Testes-Favorito",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "5473166"
+	},
+	"item": [
+		{
+			"name": "autenticarPorLogin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"TOKEN\", pm.response.json().token);\r",
+							"\r",
+							"//pm.environment.set(\"IDUser\", pm.response.json().user.id);\r",
+							"\r",
+							"pm.test(\"Código de retorno é 200\",  () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('buscarProdutos');\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"maria@teste.com\",\r\n  \"password\": \"123456\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Auth_URL}}",
+					"host": [
+						"{{Auth_URL}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "buscarProdutos",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código de retorno é 200\",  () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Buscar um produto para a reserva\", () =>{\r",
+							"    const jsonData = pm.response.json();\r",
+							"    const produto = jsonData[0].id;\r",
+							"    console.log(produto)\r",
+							"    pm.environment.set('IDProduto', produto)\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('buscarFavorito');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{Base_URL}}/produto",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"produto"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "buscarFavorito",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código de retorno é 200\",  () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('adicionarFavorito');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{Base_URL}}/favorito",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"favorito"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "adicionarFavorito",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código de retorno é 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"pm.environment.set(\"IDFavorito\", pm.response.json().id)\r",
+							"\r",
+							"pm.test(\"Tempo de resposta é até 1000ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('buscarFavoritoPorId');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"produto\": {\"id\": {{IDProduto}}}\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Base_URL}}/favorito",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"favorito"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "buscarFavoritoPorId",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código de retorno é 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Valida se o id retornado é igual a variável global\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.id).to.eql(pm.environment.get('IDFavorito'));\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('deletarFavorito');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{Base_URL}}/favorito/{{IDFavorito}}",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"favorito",
+						"{{IDFavorito}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deletarFavorito",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código de retorno é 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Favorito foi encontrada!\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"Favorito apagado!\");\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('favoritosUser')"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{Base_URL}}/favorito/delete/{{IDFavorito}}",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"favorito",
+						"delete",
+						"{{IDFavorito}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "favoritosUser",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código de retorno é 200\",  () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest(null);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{Base_URL}}/favorito/favoritoUser",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"favorito",
+						"favoritoUser"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "produtoFavoritadoporID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código de retorno é 200\",  () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{IDFavorito}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{Base_URL}}/favorito/isFavorito/{{IDFavorito}}",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"favorito",
+						"isFavorito",
+						"{{IDFavorito}}"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

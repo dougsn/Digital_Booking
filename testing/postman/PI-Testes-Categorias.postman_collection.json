@@ -1,0 +1,324 @@
+{
+	"info": {
+		"_postman_id": "af6e3bf1-24ec-42da-b48e-51c87db39d47",
+		"name": "PI-Testes-Categorias",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "5473166"
+	},
+	"item": [
+		{
+			"name": "autenticarPorLogin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"TOKEN\", pm.response.json().token);\r",
+							"\r",
+							"//pm.environment.set(\"IDUser\", pm.response.json().user.id);\r",
+							"\r",
+							"pm.test(\"Código de retorno é 200\",  () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('buscarTodasCategorias');\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"maria@teste.com\",\r\n  \"password\": \"123456\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Auth_URL}}",
+					"host": [
+						"{{Auth_URL}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "buscarTodasCategorias",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código de retorno é 200\",  () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Verifica se existe alguma categoria Hotel\", () => {\r",
+							"    pm.expect(pm.response.text()).to.include(\"Hotel\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Content-Type is present\", () => {\r",
+							"    pm.response.to.have.header(\"Content-Type\");\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('adicionarCategoria');\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{Base_URL}}/categoria",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"categoria"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "adicionarCategoria",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código de retorno é 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"pm.environment.set(\"IDCateg\", pm.response.json().id);\r",
+							"pm.collectionVariables.set(\"IdCategoria\", pm.response.json().id);\r",
+							"\r",
+							"pm.test(\"Tempo de resposta é até 1000ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('buscarCategoriaPorId');\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"qualificacao\": \"vasos\",\r\n    \"descricao\": \"vasos azuis\",\r\n    \"urlImagem\": \"https://images.unsplash.com/photo-1677136719394-73cc26cdff29?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Base_URL}}/categoria",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"categoria"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "buscarCategoriaPorId",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código de retorno é 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Valida se o id retornado é igual ao id da variável IDCateg\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    var categ = parseInt(pm.environment.get('IDCateg'));\r",
+							"    pm.expect(jsonData.id).to.eql(categ);\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('atualizarCategoria');\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{Base_URL}}/categoria/{{IdCategoria}}",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"categoria",
+						"{{IdCategoria}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "atualizarCategoria",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Sucesso ao atualizar\", function () {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 202]);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Valida se a respota está correta!\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    var categ = parseInt(pm.environment.get('IDCateg'));\r",
+							"    pm.expect(jsonData.id).to.eql(categ);\r",
+							"    console.log(\"Categoria atualizada!\");\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('deleteCategoria');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"qualificacao\": \"pessoas\",\r\n    \"descricao\": \"pessoas felizes\",\r\n    \"urlImagem\": \"https://plus.unsplash.com/premium_photo-1661692120990-4f8e8ccb291c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Base_URL}}/categoria/atualizar/{{IdCategoria}}",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"categoria",
+						"atualizar",
+						"{{IdCategoria}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deleteCategoria",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código de retorno é 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Categoria foi encontradas\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"Categoria apagada!\");\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest(null);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{Base_URL}}/categoria/delete/{{IdCategoria}}",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"categoria",
+						"delete",
+						"{{IdCategoria}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "IdCategoria",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

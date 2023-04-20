@@ -1,0 +1,58 @@
+[Unit]
+Description=BackEnd Server
+Requires=network-online.target docker.service
+After=network-online.target docker.service
+
+[Service]
+Restart=always
+User=ubuntu
+RestartSec=5
+EnvironmentFile=/home/ubuntu/.env
+ExecStartPre=-/usr/bin/docker kill backend-server
+ExecStartPre=-/usr/bin/docker rm backend-server
+ExecStartPre=/usr/bin/docker pull matheuspotter06/spring-srv:main
+ExecStart=/usr/bin/docker run --name backend-server --env-file /home/ubuntu/.env -p 80:5500 matheuspotter06/spring-srv:main
+ExecStop=/usr/bin/docker stop backend-server
+
+[Install]
+WantedBy=multi-user.target
+
+--------------------------------------------------------------------------------------------
+
+[Unit]
+Description=FrontEnd Server
+Requires=network-online.target docker.service
+After=network-online.target docker.service
+
+[Service]
+Restart=always
+User=ubuntu
+RestartSec=5
+ExecStartPre=-/usr/bin/docker kill frontend-server
+ExecStartPre=-/usr/bin/docker rm frontend-server
+ExecStartPre=/usr/bin/docker pull matheuspotter06/apache-srv:main
+ExecStart=/usr/bin/docker run --name frontend-server -p 80:80 matheuspotter06/apache-srv:main
+ExecStop=/usr/bin/docker stop frontend-server
+
+[Install]
+WantedBy=multi-user.target
+
+--------------------------------------------------------------------------------------------
+
+[Unit]
+Description=Watchtower Service
+Requires=network-online.target docker.service
+After=network-online.target docker.service
+
+[Service]
+Restart=always
+User=ubuntu
+RestartSec=5
+ExecStartPre=-/usr/bin/docker kill watchtower
+ExecStartPre=-/usr/bin/docker rm watchtower
+ExecStartPre=/usr/bin/docker pull containrrr/watchtower
+ExecStart=/usr/bin/docker run --name watchtower -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower
+ExecStop=/usr/bin/docker stop watchtower
+
+[Install]
+WantedBy=multi-user.target

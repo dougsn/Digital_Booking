@@ -1,0 +1,26 @@
+.popover{
+    position: relative;
+}
+
+.popover-content{
+    display: flex;
+    gap: 10px;
+    background: rgba(10, 10, 10, .8);
+    padding: 20px;
+    position: absolute;
+    top: 40px;
+    left: -30px;
+    border-radius: 5px;
+}
+
+.popover-arrow{
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 10px solid rgba(10, 10, 10, .8);
+  transform: scaleX(1.5);
+  position: absolute;
+  top: 30px;
+  left: -15px;
+}

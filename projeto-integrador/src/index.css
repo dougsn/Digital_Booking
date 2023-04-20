@@ -1,0 +1,37 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base{
+    a{
+        @apply transition-all ease-in-out duration-300 w-fit text-green cursor-pointer
+        xl:text-darker-green 
+        xl:hover:text-green 
+        xl:after:content-['']
+        xl:after:block
+        xl:after:bg-darker-green
+        xl:after:transition-all
+        xl:after:ease-in-out
+        xl:after:duration-300
+        xl:after:h-px
+        xl:after:w-8
+        xl:after:mx-auto
+        xl:hover:after:w-full
+        xl:hover:after:bg-green ;
+    }
+    .paginationBttns li .paginationActive{
+        @apply text-dark-purple after:hidden
+    }
+    .paginationBttns a{
+        @apply after:hidden
+    }
+    .page-item a, .previous a, .next a{
+        @apply text-white
+    }
+    .paginationActive.page-item a{
+        @apply text-dark-purple
+    }
+
+}

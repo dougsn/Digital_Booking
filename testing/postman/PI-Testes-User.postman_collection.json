@@ -1,0 +1,224 @@
+{
+	"info": {
+		"_postman_id": "151f8cd5-a263-4d55-8746-268695df4ea9",
+		"name": "PI-Testes-User",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "5473166"
+	},
+	"item": [
+		{
+			"name": "buscarUsers",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código de retorno é 200\",  () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('atualizarUser');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{Base_URL}}/user",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"user"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "buscarUserPorId",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código de retorno é 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Valida se o id retornado é igual a variável global\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.id).to.eql(pm.environment.get('IDUser'));\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('deletarUser');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{Base_URL}}/user/{{IDUser}}",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"user",
+						"{{IDUser}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "atualizarUser",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Sucesso ao atualizar\", function () {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 202]);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Valida se a respota está correta!\", function () {\r",
+							"    pm.response.to.have.body(\"Usuário atualizado!\");\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('buscarUserPorId');\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"id\": {{IDUser}},\r\n  \"firstname\": \"Marcelo\",\r\n  \"lastname\": \"Roberto\",\r\n  \"email\": \"marogoba@gmail.com\",\r\n  \"funcoes\": {\r\n    \"id\": 2\r\n    }\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Base_URL}}/user/atualizar",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"user",
+						"atualizar"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deletarUser",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"User foi encontradas\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"User encontrado!\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Código de retorno é 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{Base_URL}}/user/delete/-1",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"user",
+						"delete",
+						"-1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "produtosCriados",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código de retorno é 200\",  () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{Base_URL}}\\user\\produtosCriados",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"user",
+						"produtosCriados"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

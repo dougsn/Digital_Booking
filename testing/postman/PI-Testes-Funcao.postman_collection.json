@@ -1,0 +1,293 @@
+{
+	"info": {
+		"_postman_id": "53f30cf9-5a88-46d7-82cf-712ce58de2b6",
+		"name": "PI-Testes-Funcao",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "5473166"
+	},
+	"item": [
+		{
+			"name": "autenticarPorLogin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"TOKEN\", pm.response.json().token);\r",
+							"\r",
+							"//pm.environment.set(\"IDUser\", pm.response.json().user.id);\r",
+							"\r",
+							"pm.test(\"Código de retorno é 200\",  () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('buscarFuncao');\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"maria@teste.com\",\r\n  \"password\": \"123456\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Auth_URL}}",
+					"host": [
+						"{{Auth_URL}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "buscarFuncao",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código de retorno é 200\",  () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Authorization is present\", () => {\r",
+							"    pm.request.to.have.header(\"Authorization\");\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest(\"adicionarFuncao\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{Base_URL}}/funcao",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"funcao"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "adicionarFuncao",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código de retorno é 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"pm.environment.set(\"IDFuncao\", pm.response.json().id)\r",
+							"\r",
+							"pm.test(\"Tempo de resposta é até 1000ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('buscarFuncaoPorId');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"nome\": \"MASTER\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Base_URL}}/funcao",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"funcao"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "buscarFuncaoPorId",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código de retorno é 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Valida se o id retornado é igual a variavel global\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.id).to.eql(pm.environment.get('IDFuncao'));\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('atualizarFuncao');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{Base_URL}}/funcao/{{IDFuncao}}",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"funcao",
+						"{{IDFuncao}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "atualizarFuncao",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Sucesso ao atualizar\", function () {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 202]);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Valida se a respota está correta!\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    if (jsonData.id == parseInt(pm.environment.get('IDFuncao'))){\r",
+							"        console.log(\"Função atualizada!\");\r",
+							"    }\r",
+							"   \r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('deletarFuncao');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"nome\": \"SENIOR\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Base_URL}}/funcao/atualizar/{{IDFuncao}}",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"funcao",
+						"atualizar",
+						"{{IDFuncao}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deletarFuncao",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código de retorno é 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Funcão foi encontrada!\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"Função apagada!\");\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest(null);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{Base_URL}}/funcao/delete/{{IDFuncao}}",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"funcao",
+						"delete",
+						"{{IDFuncao}}"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -1,0 +1,330 @@
+{
+	"info": {
+		"_postman_id": "7989d066-f37b-4085-89ad-fbb78bef0292",
+		"name": "PI-Testes-Classificacao",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "5473166"
+	},
+	"item": [
+		{
+			"name": "autenticarPorLogin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"TOKEN\", pm.response.json().token);\r",
+							"\r",
+							"//pm.environment.set(\"IDUser\", pm.response.json().user.id);\r",
+							"\r",
+							"pm.test(\"Código de retorno é 200\",  () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('buscarProdutos');\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"maria@teste.com\",\r\n  \"password\": \"123456\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Auth_URL}}",
+					"host": [
+						"{{Auth_URL}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "buscarProdutos",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código de retorno é 200\",  () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Buscar um produto para a reserva\", () =>{\r",
+							"    const jsonData = pm.response.json();\r",
+							"    const produto = jsonData[0].id;\r",
+							"    console.log(produto)\r",
+							"    pm.environment.set('IDProduto', produto)\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('buscarClassificacao');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{Base_URL}}/produto",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"produto"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "buscarClassificacao",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código de retorno é 200\",  () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('adicionarClassificacao');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{Base_URL}}/classificacao",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"classificacao"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "adicionarClassificacao",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código de retorno é 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"pm.environment.set(\"IDClassificacao\", pm.response.json().id)\r",
+							"\r",
+							"pm.test(\"Tempo de resposta é até 1000ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('buscarClassificacaoPorId');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"produto\": {\r\n\t\t    \"id\": {{IDProduto}}\r\n\t\t   },\r\n\t\"pontuacao\": 2\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Base_URL}}/classificacao",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"classificacao"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "buscarClassificacaoPorId",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código de retorno é 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Valida se o id retornado é igual a variável global\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    var idClassificacao = pm.environment.get('IDClassificacao');\r",
+							"    pm.expect(jsonData.id).to.eql(idClassificacao);\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('atualizarClassificacao');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{Base_URL}}/classificacao/{{IDClassificacao}}",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"classificacao",
+						"{{IDClassificacao}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "atualizarClassificacao",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Sucesso ao atualizar\", function () {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 202]);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Valida se a respota está correta!\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"\r",
+							"    if (jsonData.id == pm.environment.get('IDClassificacao')) {\r",
+							"       console.log(\"Classificação atualizada!\");\r",
+							"    }\r",
+							"    \r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest('deletarClassificacao');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"produto\": {\"id\": {{IDProduto}} },\r\n  \"pontuacao\": 10\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Base_URL}}/classificacao/atualizar/{{IDClassificacao}}",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"classificacao",
+						"atualizar",
+						"{{IDClassificacao}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deletarClassificacao",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Código de retorno é 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Classificaçao foi encontrada!\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"Classificação apagada!\");\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest(null);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{Base_URL}}/classificacao/delete/{{IDClassificacao}}",
+					"host": [
+						"{{Base_URL}}"
+					],
+					"path": [
+						"classificacao",
+						"delete",
+						"{{IDClassificacao}}"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -1,0 +1,15 @@
+{
+  "name": "Digital Booking",
+  "short_name": "Digital Booking",
+  "start_url": "/home",
+  "background_color": "#383b58",
+  "theme_color": "#1dbeb4",
+  "display": "standalone",
+  "icons": [
+    {
+      "src": "minLogo.png",
+      "sizes": "71x52",
+      "type": "image/png"
+    }
+  ]
+}

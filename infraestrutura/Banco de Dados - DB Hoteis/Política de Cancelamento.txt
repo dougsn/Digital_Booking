@@ -1,0 +1,3 @@
+Caso a solicitação de cancelamento ocorra com menos de 18 dia(s) de antecedência da data programada para a entrada, será cobrada multa de 50% do valor da reserva.
+
+Cancelamentos solicitados com mais de 18 dia(s) de antecedência da data programada para a entrada serão realizados gratuitamente.
